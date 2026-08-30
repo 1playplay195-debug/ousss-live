@@ -30,6 +30,25 @@ header h1 {
   margin-top: 5px;
 }
 
+/* ===== زر التثبيت ===== */
+.install-btn {
+  background: #f59e0b;
+  color: #fff;
+  border: none;
+  padding: 8px 18px;
+  border-radius: 20px;
+  font-weight: bold;
+  font-family: inherit;
+  cursor: pointer;
+  margin-top: 12px;
+  font-size: 14px;
+  transition: background 0.3s;
+}
+
+.install-btn:hover {
+  background: #d97706;
+}
+
 /* ===== تبويبات الفلترة ===== */
 #nav {
   display: flex;
@@ -295,19 +314,4 @@ footer {
   .score-box { min-width: 85px; }
 
   .date-bar button { padding: 8px 12px; font-size: 13px; }
-  
-  #installBtn {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  background: #4ade80;
-  color: #0e1a2b;
-  border: none;
-  padding: 12px 24px;
-  border-radius: 30px;
-  font-size: 15px;
-  font-weight: bold;
-  cursor: pointer;
-  box-shadow: 0 4px 15px rgba(74,222,128,.4);
-  z-index: 100;
 }
