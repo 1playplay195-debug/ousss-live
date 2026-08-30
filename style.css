@@ -240,4 +240,74 @@ footer {
     padding: 10px 20px;
     font-size: 14px;
   }
+  /* ===== شريط التنقل بين الأيام ===== */
+.date-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 12px 15px;
+  background: #12243a;
+  flex-wrap: wrap;
+}
+
+.date-bar button {
+  background: #1e3a5f;
+  color: #cbd5e1;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: bold;
+  transition: .2s;
+}
+
+.date-bar button:hover {
+  background: #4ade80;
+  color: #0e1a2b;
+}
+
+.date-bar input[type="date"] {
+  background: #16283f;
+  color: #fff;
+  border: 1px solid #2d4a6f;
+  padding: 9px 12px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-family: inherit;
+  cursor: pointer;
+  color-scheme: dark; /* يجعل تقويم المتصفح داكنًا */
+}
+
+.today-btn {
+  display: block;
+  margin: 12px auto 0;
+  background: #0b3d2e;
+  color: #4ade80;
+  border: 1px solid #4ade80;
+  padding: 8px 20px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: bold;
+  transition: .2s;
+}
+
+.today-btn:hover {
+  background: #4ade80;
+  color: #0e1a2b;
+}
+
+/* رأس التاريخ المعروض */
+.date-header {
+  text-align: center;
+  background: #16283f;
+  color: #4ade80;
+  font-weight: bold;
+  font-size: 16px;
+  padding: 12px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  border: 1px dashed #2d4a6f;
 }
