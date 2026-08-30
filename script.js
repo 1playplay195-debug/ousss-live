@@ -54,6 +54,7 @@ async function fetchLeague(league) {
   const res = await fetch(url);
   if (!res.ok) throw new Error('HTTP ' + res.status);
   const data = await res.json();
+  
   return {
     ...league,
     name: data.leagues?.[0]?.name || league.code,
@@ -61,6 +62,17 @@ async function fetchLeague(league) {
       const comp = e.competitions[0];
       const home = comp.competitors.find(c => c.homeAway === 'home');
       const away = comp.competitors.find(c => c.homeAway === 'away');
+      
+      // استخراج اسم الملعب
+      const venue = comp.venue && comp.venue.fullName ? comp.venue.fullName : 'غير محدد';
+      
+      // استخراج القنوات الناقلة
+      let tv = 'غير متوفر';
+      if (comp.broadcasts && comp.broadcasts.length > 0) {
+        const channels = comp.broadcasts.map(b => b.names ? b.names.join(', ') : '').filter(Boolean);
+        if (channels.length > 0) tv = channels.join(' | ');
+      }
+
       return {
         id: e.id,
         home: {
@@ -75,12 +87,13 @@ async function fetchLeague(league) {
         },
         state: e.status.type.state,
         detail: e.status.type.shortDetail || e.status.type.description || '',
-        time: formatTime(e.date)
+        time: formatTime(e.date),
+        venue: venue,
+        tv: tv
       };
     })
   };
 }
-
 // ===== جلب جميع الدوريات للتاريخ المحدد =====
 async function loadAll() {
   container.innerHTML = '<p class="status-bar">⏳ جاري تحميل النتائج...</p>';
@@ -178,21 +191,27 @@ function render() {
       <div class="league-header"><span>${l.flag}</span> ${l.arName} — ${l.name}</div>
       ${l.events.map(m => `
         <div class="match ${m.goal ? 'goal-flash' : ''}" id="match-${m.id}">
-          <div class="team home">
-            <img class="team-logo" src="${m.home.logo}" alt="" onerror="this.style.display='none'">
-            ${m.home.name}
-          </div>
-          <div class="score-box">
-            <div class="score ${m.state === 'in' ? 'live' : ''}">${m.home.score} - ${m.away.score}</div>
-            <div class="minute ${m.state === 'post' ? 'finished' : m.state === 'pre' ? 'scheduled' : ''}">
-              ${m.state === 'pre' ? '🕒 ' + m.time :
-                m.state === 'in' ? '⏱ ' + (STATUS_AR[m.detail] || m.detail) :
-                '✓ ' + (STATUS_AR[m.detail] || m.detail)}
+          <div class="match-main">
+            <div class="team home">
+              <img class="team-logo" src="${m.home.logo}" alt="" onerror="this.style.display='none'">
+              ${m.home.name}
+            </div>
+            <div class="score-box">
+              <div class="score ${m.state === 'in' ? 'live' : ''}">${m.home.score} - ${m.away.score}</div>
+              <div class="minute ${m.state === 'post' ? 'finished' : m.state === 'pre' ? 'scheduled' : ''}">
+                ${m.state === 'pre' ? '🕒 ' + m.time :
+                  m.state === 'in' ? '⏱ ' + (STATUS_AR[m.detail] || m.detail) :
+                  '✓ ' + (STATUS_AR[m.detail] || m.detail)}
+              </div>
+            </div>
+            <div class="team away">
+              <img class="team-logo" src="${m.away.logo}" alt="" onerror="this.style.display='none'">
+              ${m.away.name}
             </div>
           </div>
-          <div class="team away">
-            <img class="team-logo" src="${m.away.logo}" alt="" onerror="this.style.display='none'">
-            ${m.away.name}
+          <div class="match-details">
+            <div class="detail-item">🏟️ ${m.venue}</div>
+            <div class="detail-item">📺 ${m.tv}</div>
           </div>
         </div>`).join('')}
     </div>`).join('');
