@@ -1,246 +1,70 @@
-/* ===== التنسيقات العامة ===== */
+/* ===== إعدادات عامة ===== */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: 'Segoe UI', Tahoma, Arial, sans-serif;
 }
 
 body {
+  font-family: 'Segoe UI', Tahoma, Arial, sans-serif;
   background: #0e1a2b;
-  color: #fff;
+  color: #e2e8f0;
   min-height: 100vh;
 }
 
-/* ===== الهيدر ===== */
+/* ===== الترويسة ===== */
 header {
   background: linear-gradient(135deg, #0b3d2e, #14532d);
-  padding: 15px 20px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  box-shadow: 0 2px 10px rgba(0,0,0,.4);
-  position: sticky;
-  top: 0;
-  z-index: 10;
+  text-align: center;
+  padding: 25px 15px;
 }
 
-.logo {
-  font-size: 22px;
-  font-weight: bold;
+header h1 {
   color: #4ade80;
+  font-size: 26px;
+}
+
+.tagline {
+  color: #86efac;
+  font-size: 14px;
+  margin-top: 5px;
+}
+
+/* ===== تبويبات الفلترة ===== */
+#nav {
   display: flex;
-  align-items: center;
   gap: 8px;
-}
-
-.live-badge {
-  background: #dc2626;
-  padding: 4px 12px;
-  border-radius: 20px;
-  font-size: 13px;
-  font-weight: bold;
-  animation: pulse 1.5s infinite;
-}
-
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50%      { opacity: .5; }
-}
-
-/* ===== شريط التبويبات ===== */
-nav {
-  display: flex;
-  gap: 10px;
-  padding: 12px 20px;
+  padding: 12px 15px;
   background: #12243a;
   overflow-x: auto;
+  white-space: nowrap;
+  -webkit-overflow-scrolling: touch;
 }
 
-nav button {
+#nav button {
   background: #1e3a5f;
   color: #cbd5e1;
   border: none;
-  padding: 8px 18px;
-  border-radius: 20px;
+  padding: 10px 16px;
+  border-radius: 10px;
   cursor: pointer;
   font-size: 14px;
-  white-space: nowrap;
+  font-weight: bold;
+  font-family: inherit;
   transition: .2s;
-}
-
-nav button.active,
-nav button:hover {
-  background: #4ade80;
-  color: #0e1a2b;
-  font-weight: bold;
-}
-
-/* ===== الحاوية ===== */
-.container {
-  max-width: 900px;
-  margin: 20px auto;
-  padding: 0 15px;
-}
-
-/* ===== بطاقة الدوري ===== */
-.league {
-  background: #16283f;
-  border-radius: 12px;
-  margin-bottom: 20px;
-  overflow: hidden;
-  box-shadow: 0 4px 15px rgba(0,0,0,.3);
-}
-
-.league-header {
-  background: #1e3a5f;
-  padding: 12px 16px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-weight: bold;
-  font-size: 15px;
-}
-
-/* ===== بطاقة المباراة ===== */
-.match {
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
-  align-items: center;
-  padding: 16px;
-  border-bottom: 1px solid #0e1a2b;
-  transition: background .2s;
-}
-
-.match:last-child {
-  border-bottom: none;
-}
-
-.match:hover {
-  background: #1c3350;
-}
-
-.team {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 15px;
-  font-weight: 600;
-}
-
-.team.away {
-  justify-content: flex-end;
-  text-align: left;
-  flex-direction: row-reverse;
-}
-
-.team-logo {
-  width: 30px;
-  height: 30px;
-  object-fit: contain;
   flex-shrink: 0;
 }
 
-.score-box {
-  text-align: center;
-  min-width: 100px;
+#nav button:hover {
+  background: #2d4a6f;
 }
 
-.score {
-  font-size: 22px;
-  font-weight: bold;
-  background: #0b3d2e;
-  padding: 6px 14px;
-  border-radius: 8px;
-  display: inline-block;
-}
-
-.score.live {
-  color: #4ade80;
-}
-
-.minute {
-  font-size: 12px;
-  color: #f87171;
-  margin-top: 4px;
-  font-weight: bold;
-}
-
-.minute.finished {
-  color: #94a3b8;
-}
-
-.minute.scheduled {
-  color: #60a5fa;
-}
-
-/* وميض أخضر عند تسجيل هدف */
-.goal-flash {
-  animation: goalFlash 1s ease 3;
-}
-
-@keyframes goalFlash {
-  0%, 100% { background: transparent; }
-  50%      { background: rgba(74,222,128,.25); }
-}
-
-/* ===== شريط الحالة ===== */
-.status-bar {
-  text-align: center;
-  padding: 8px;
-  color: #64748b;
-  font-size: 13px;
-}
-
-footer {
-  text-align: center;
-  padding: 20px;
-  color: #64748b;
-  font-size: 13px;
-}
-
-/* ===== زر تثبيت التطبيق (PWA) ===== */
-#installBtn {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
+#nav button.active {
   background: #4ade80;
   color: #0e1a2b;
-  border: none;
-  padding: 12px 24px;
-  border-radius: 30px;
-  font-size: 15px;
-  font-weight: bold;
-  cursor: pointer;
-  box-shadow: 0 4px 15px rgba(74,222,128,.4);
-  z-index: 100;
-  transition: transform .2s;
 }
 
-#installBtn:hover {
-  transform: scale(1.05);
-}
-
-/* ===== الجوال ===== */
-@media (max-width: 600px) {
-  .team {
-    font-size: 12px;
-  }
-  .team-logo {
-    width: 22px;
-    height: 22px;
-  }
-  .score {
-    font-size: 17px;
-    padding: 5px 10px;
-  }
-  #installBtn {
-    bottom: 15px;
-    right: 15px;
-    padding: 10px 20px;
-    font-size: 14px;
-  }
-  /* ===== شريط التنقل بين الأيام ===== */
+/* ===== شريط التنقل بين الأيام ===== */
 .date-bar {
   display: flex;
   align-items: center;
@@ -260,6 +84,7 @@ footer {
   cursor: pointer;
   font-size: 14px;
   font-weight: bold;
+  font-family: inherit;
   transition: .2s;
 }
 
@@ -277,7 +102,7 @@ footer {
   font-size: 14px;
   font-family: inherit;
   cursor: pointer;
-  color-scheme: dark; /* يجعل تقويم المتصفح داكنًا */
+  color-scheme: dark;
 }
 
 .today-btn {
@@ -291,6 +116,7 @@ footer {
   cursor: pointer;
   font-size: 14px;
   font-weight: bold;
+  font-family: inherit;
   transition: .2s;
 }
 
@@ -299,7 +125,7 @@ footer {
   color: #0e1a2b;
 }
 
-/* رأس التاريخ المعروض */
+/* ===== رأس التاريخ المعروض ===== */
 .date-header {
   text-align: center;
   background: #16283f;
@@ -310,4 +136,163 @@ footer {
   border-radius: 12px;
   margin-bottom: 20px;
   border: 1px dashed #2d4a6f;
+}
+
+/* ===== الحاويات ===== */
+main {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px 15px 40px;
+}
+
+.status-bar,
+.no-matches {
+  text-align: center;
+  color: #94a3b8;
+  padding: 40px 15px;
+  font-size: 16px;
+}
+
+/* ===== بطاقات الدوريات ===== */
+.league {
+  background: #16283f;
+  border-radius: 14px;
+  overflow: hidden;
+  margin-bottom: 20px;
+  border: 1px solid #2d4a6f;
+}
+
+.league-header {
+  background: #1e3a5f;
+  color: #7dd3fc;
+  font-weight: bold;
+  font-size: 15px;
+  padding: 12px 15px;
+}
+
+/* ===== بطاقات المباريات ===== */
+.match {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 15px;
+  border-bottom: 1px solid #1e3a5f;
+  transition: background .3s;
+}
+
+.match:last-child {
+  border-bottom: none;
+}
+
+.match:hover {
+  background: #1a2f4a;
+}
+
+/* تأثير وميض عند تسجيل هدف */
+.goal-flash {
+  animation: goalGlow 2s ease-in-out;
+}
+
+@keyframes goalGlow {
+  0%   { background: rgba(74, 222, 128, .35); }
+  50%  { background: rgba(74, 222, 128, .15); }
+  100% { background: transparent; }
+}
+
+/* ===== الفرق ===== */
+.team {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  font-weight: bold;
+  font-size: 15px;
+}
+
+.team.home {
+  justify-content: flex-start;
+}
+
+.team.away {
+  justify-content: flex-end;
+  text-align: left;
+  flex-direction: row;
+}
+
+.team-logo {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+}
+
+/* ===== النتيجة والحالة ===== */
+.score-box {
+  text-align: center;
+  min-width: 110px;
+}
+
+.score {
+  font-size: 20px;
+  font-weight: bold;
+  color: #fff;
+}
+
+.score.live {
+  color: #f87171;
+}
+
+.minute {
+  font-size: 12px;
+  color: #94a3b8;
+  margin-top: 3px;
+}
+
+.minute.finished {
+  color: #64748b;
+}
+
+.minute.scheduled {
+  color: #4ade80;
+}
+
+/* نقطة البث المباشر النابضة */
+.score.live::after {
+  content: '•';
+  color: #ef4444;
+  margin-right: 5px;
+  animation: pulse 1.2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: .3; }
+}
+
+/* ===== التذييل ===== */
+footer {
+  text-align: center;
+  padding: 20px;
+  color: #64748b;
+  font-size: 13px;
+  border-top: 1px solid #1e3a5f;
+}
+
+#lastUpdate {
+  color: #4ade80;
+  margin-bottom: 5px;
+}
+
+/* ===== التجاوب مع الشاشات الصغيرة ===== */
+@media (max-width: 480px) {
+  header h1 { font-size: 21px; }
+
+  .team { font-size: 13px; }
+
+  .team-logo { width: 22px; height: 22px; }
+
+  .score { font-size: 17px; }
+
+  .score-box { min-width: 85px; }
+
+  .date-bar button { padding: 8px 12px; font-size: 13px; }
 }
