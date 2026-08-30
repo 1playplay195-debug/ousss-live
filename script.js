@@ -23,9 +23,9 @@ function formatArabicDate(d) {
   const isToday = toInputFormat(d) === toInputFormat(new Date());
   const isTomorrow = toInputFormat(d) === toInputFormat(new Date(Date.now() + 86400000));
   const isYesterday = toInputFormat(d) === toInputFormat(new Date(Date.now() - 86400000));
-  if (isToday) return 'Today';
-  if (isTomorrow) return 'Tomorrow';
-  if (isYesterday) return 'Yesterday';
+  if (isToday) return 'اليوم';
+  if (isTomorrow) return 'غدًا';
+  if (isYesterday) return 'أمس';
   return `${DAY_NAMES[d.getDay()]} ${d.getDate()} ${MONTH_NAMES[d.getMonth()]}`;
 }
 
@@ -46,16 +46,14 @@ async function fetchLeague(league) {
         id: e.id,
         home: {
           name: home.team.displayName,
-          logo: home.team.logo || home.team.logos?.[0]?.href || '',
-          score: parseInt(home.score ?? 0)
+          logo: home.team.logo || home.team.logos?.[0]?.href || ''
         },
         away: {
           name: away.team.displayName,
-          logo: away.team.logo || away.team.logos?.[0]?.href || '',
-          score: parseInt(away.score ?? 0)
+          logo: away.team.logo || away.team.logos?.[0]?.href || ''
         },
-        state: e.status.type.state,
-        detail: e.status.type.shortDetail || e.status.type.description,
+        state: e.status.type.state, // pre | in | post
+        detail: e.status.type.shortDetail || e.status.type.description || '',
         time: new Date(e.date).toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' })
       };
     })
@@ -70,7 +68,7 @@ async function loadAll() {
   const leagues = results.filter(r => r.status === 'fulfilled' && r.value.events.length)
                          .map(r => r.value);
 
-  // اكتشاف الأهداف الجديدة
+  // اكتشاف الأهداف الجديدة لتأثير الوميض
   leagues.forEach(l => l.events.forEach(m => {
     const key = m.id;
     if (prevScores[key] && (prevScores[key].h !== m.home.score || prevScores[key].a !== m.away.score)) {
@@ -80,21 +78,26 @@ async function loadAll() {
   }));
 
   window._leagues = leagues;
-  buildNav(leagues);
+  buildNav();
   updateDateBar();
   render();
+
   document.getElementById('lastUpdate').textContent =
-    'Last update: ' + new Date().toLocaleTimeString('ar-EG');
+    'آخر تحديث: ' + new Date().toLocaleTimeString('ar-EG');
 }
 
 // ===== شريط التاريخ =====
 function updateDateBar() {
   document.getElementById('datePicker').value = toInputFormat(selectedDate);
-  document.getElementById('prevDay').textContent = `◀ ${DAY_NAMES[(selectedDate.getDay() + 6) % 7] && ''}${formatArabicDate(new Date(selectedDate.getTime() - 86400000))}`;
-  document.getElementById('nextDay').textContent = `${formatArabicDate(new Date(selectedDate.getTime() + 86400000))} ▶`;
+
+  const prev = new Date(selectedDate.getTime() - 86400000);
+  const next = new Date(selectedDate.getTime() + 86400000);
+
+  document.getElementById('prevDay').textContent = `◀ ${formatArabicDate(prev)}`;
+  document.getElementById('nextDay').textContent = `${formatArabicDate(next)} ▶`;
 }
 
-// الانتقال ليوم معين
+// الانتقال ليوم معين (عدد أيام: +1 أو -1 ...)
 function goToDate(offsetDays) {
   selectedDate = new Date(selectedDate.getTime() + offsetDays * 86400000);
   loadAll();
@@ -122,19 +125,19 @@ document.getElementById('datePicker').addEventListener('change', onDateChange);
 document.getElementById('todayBtn').addEventListener('click', goToday);
 
 // ===== تبويبات الفلترة =====
-function buildNav(leagues) {
+function buildNav() {
   const nav = document.getElementById('nav');
   if (nav.dataset.built) return;
   nav.dataset.built = '1';
   nav.innerHTML = `<button class="active" onclick="setFilter('all', this)">الكل</button>` +
-    leagues.map(l =>
+    LEAGUES.map(l =>
       `<button onclick="setFilter('${l.code}', this)">${l.flag} ${l.arName}</button>`
     ).join('');
 }
 
 function setFilter(code, btn) {
   currentFilter = code;
-  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('#nav button').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   render();
 }
@@ -143,14 +146,13 @@ function setFilter(code, btn) {
 function render() {
   const all = window._leagues || [];
   const filtered = currentFilter === 'all' ? all : all.filter(l => l.code === currentFilter);
-  const isToday = toInputFormat(selectedDate) === toInputFormat(new Date());
 
   // رأس يعرض التاريخ المعروض
   const dateHeader = `<div class="date-header">🗓️ مباريات ${formatArabicDate(selectedDate)}</div>`;
 
   if (!filtered.length) {
     container.innerHTML = dateHeader +
-      '<p style="text-align:center;color:#94a3b8;padding:40px">لا توجد مباريات في هذا اليوم — جرّب يوماً آخر</p>';
+      '<p class="no-matches">لا توجد مباريات في هذا اليوم — جرّب يوماً آخر</p>';
     return;
   }
 
@@ -160,7 +162,7 @@ function render() {
       ${l.events.map(m => `
         <div class="match ${m.goal ? 'goal-flash' : ''}" id="match-${m.id}">
           <div class="team home">
-            <img class="team-logo" src="${m.home.logo}" alt="">
+            <img class="team-logo" src="${m.home.logo}" alt="" onerror="this.style.display='none'">
             ${m.home.name}
           </div>
           <div class="score-box">
@@ -172,15 +174,17 @@ function render() {
             </div>
           </div>
           <div class="team away">
-            <img class="team-logo" src="${m.away.logo}" alt="">
+            <img class="team-logo" src="${m.away.logo}" alt="" onerror="this.style.display='none'">
             ${m.away.name}
           </div>
         </div>`).join('')}
     </div>`).join('');
 }
 
-// التحديث التلقائي (يتوقف تلقائيًا إذا لم يكن التاريخ اليوم)
+// ===== التشغيل والتحديث التلقائي =====
 loadAll();
+
+// التحديث التلقائي يعمل فقط عندما يكون التاريخ المعروض هو اليوم
 setInterval(() => {
   const isToday = toInputFormat(selectedDate) === toInputFormat(new Date());
   if (isToday) loadAll();
