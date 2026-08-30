@@ -1,79 +1,43 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>المباشر | نتائج المباريات الحقيقية</title>
-
-<!-- ===== إضافات PWA ===== -->
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#14532d">
-<meta name="description" content="نتائج المباريات المباشرة لحظة بلحظة">
-<!-- لأجهزة آيفون -->
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="كورة لايف">
-<link rel="apple-touch-icon" href="icon-192.png">
-<!-- ======================== -->
-
-<link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="نتائج المباريات المباشرة - كرة القدم العربية والعالمية">
+  <title>⚽ النتائج المباشرة | Live Scores</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<header>
-  <div class="logo">⚽ OUSS LIVE</div>
-  <div class="live-badge">● مباشر</div>
-</header>
+  <!-- الترويسة -->
+  <header>
+    <h1>⚽ النتائج المباشرة</h1>
+    <p class="tagline">مباريات اليوم لحظة بلحظة</p>
+  </header>
 
-<nav id="nav"></nav>
+  <!-- تبويبات الفلترة -->
+  <nav id="nav"></nav>
 
   <!-- شريط التنقل بين الأيام -->
-<div class="date-bar">
-  <button id="prevDay">◀ اليوم السابق</button>
-  <input type="date" id="datePicker">
-  <button id="nextDay">اليوم التالي ▶</button>
-</div>
-<button id="todayBtn" class="today-btn">📅 اليوم</button>
-  
-<div class="container" id="matchesContainer">
-  <p class="status-bar">⏳ جاري تحميل النتائج...</p>
-</div>
+  <div class="date-bar">
+    <button id="prevDay">◀ اليوم السابق</button>
+    <input type="date" id="datePicker">
+    <button id="nextDay">اليوم التالي ▶</button>
+  </div>
+  <button id="todayBtn" class="today-btn">📅 اليوم</button>
 
-<div class="status-bar" id="lastUpdate"></div>
-<footer>المصدر: ESPN — تحديث تلقائي كل 60 ثانية &copy; 2026</footer>
+  <!-- حاوية النتائج -->
+  <main id="matchesContainer">
+    <p class="status-bar">⏳ جاري تحميل النتائج...</p>
+  </main>
 
-<!-- زر تثبيت التطبيق (يظهر فقط عندما يدعم المتصفح التثبيت) -->
-<button id="installBtn" style="display:none">📥 ثبّت التطبيق</button>
+  <!-- التذييل -->
+  <footer>
+    <p id="lastUpdate"></p>
+    <p>المصدر: ESPN API &copy; 2026</p>
+  </footer>
 
-<!-- ترتيب مهم: config.js أولاً ثم script.js -->
-<script src="config.js"></script>
-<script src="script.js"></script>
-
-<script>
-// ===== تسجيل Service Worker =====
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('sw.js')
-    .then(() => console.log('✅ PWA جاهز'))
-    .catch(err => console.log('❌ خطأ في SW:', err));
-}
-
-// ===== زر التثبيت =====
-let deferredPrompt;
-const installBtn = document.getElementById('installBtn');
-
-window.addEventListener('beforeinstallprompt', e => {
-  e.preventDefault();
-  deferredPrompt = e;
-  installBtn.style.display = 'block';
-});
-
-installBtn.addEventListener('click', async () => {
-  if (!deferredPrompt) return;
-  deferredPrompt.prompt();
-  await deferredPrompt.userChoice;
-  deferredPrompt = null;
-  installBtn.style.display = 'none';
-});
-</script>
+  <script src="config.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
