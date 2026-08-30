@@ -1,4 +1,4 @@
-// ===== المنطق الرئيسي + التقويم =====
+// ===== المنطق الرئيسي + التقويم (نسخة مصححة) =====
 
 let currentFilter = 'all';
 let selectedDate = new Date(); // التاريخ المحدد حاليًا
@@ -29,6 +29,27 @@ function formatArabicDate(d) {
   return `${DAY_NAMES[d.getDay()]} ${d.getDate()} ${MONTH_NAMES[d.getMonth()]}`;
 }
 
+// ===== التوقيت: GMT+1 بأرقام لاتينية =====
+const TIME_FMT = new Intl.DateTimeFormat('en-GB', {
+  timeZone: 'Etc/GMT-1',   // Etc/GMT-1 = UTC+1 (غرينيتش +1)
+  hour: '2-digit',
+  minute: '2-digit',
+  hour12: false,
+  numberingSystem: 'latn'  // أرقام عادية 0-9 وليست ٠١٢
+});
+
+function formatTime(dateStr) {
+  try {
+    return TIME_FMT.format(new Date(dateStr));
+  } catch {
+    return '';
+  }
+}
+
+function nowTimeGMT1() {
+  return TIME_FMT.format(new Date());
+}
+
 // ===== جلب نتائج دوري واحد حسب التاريخ =====
 async function fetchLeague(league) {
   const url = `${API_BASE}/${league.code}/scoreboard?dates=${toAPIFormat(selectedDate)}`;
@@ -46,15 +67,19 @@ async function fetchLeague(league) {
         id: e.id,
         home: {
           name: home.team.displayName,
-          logo: home.team.logo || home.team.logos?.[0]?.href || ''
+          logo: home.team.logo || home.team.logos?.[0]?.href || '',
+          // ← هنا كان الخطأ: استخراج النتيجة من الـ API
+          score: home.score !== undefined && home.score !== null ? Number(home.score) : ''
         },
         away: {
           name: away.team.displayName,
-          logo: away.team.logo || away.team.logos?.[0]?.href || ''
+          logo: away.team.logo || away.team.logos?.[0]?.href || '',
+          score: away.score !== undefined && away.score !== null ? Number(away.score) : ''
         },
         state: e.status.type.state, // pre | in | post
         detail: e.status.type.shortDetail || e.status.type.description || '',
-        time: new Date(e.date).toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' })
+        // الموعد بتوقيت غرينيتش +1
+        time: formatTime(e.date)
       };
     })
   };
@@ -70,8 +95,9 @@ async function loadAll() {
 
   // اكتشاف الأهداف الجديدة لتأثير الوميض
   leagues.forEach(l => l.events.forEach(m => {
-    const key = m.id;
-    if (prevScores[key] && (prevScores[key].h !== m.home.score || prevScores[key].a !== m.away.score)) {
+    const key = l.code + '-' + m.id;
+    if (prevScores[key] &&
+        (prevScores[key].h !== m.home.score || prevScores[key].a !== m.away.score)) {
       m.goal = true;
     }
     prevScores[key] = { h: m.home.score, a: m.away.score };
@@ -83,7 +109,7 @@ async function loadAll() {
   render();
 
   document.getElementById('lastUpdate').textContent =
-    'آخر تحديث: ' + new Date().toLocaleTimeString('ar-EG');
+    'آخر تحديث: ' + nowTimeGMT1() + ' (GMT+1)';
 }
 
 // ===== شريط التاريخ =====
@@ -97,13 +123,11 @@ function updateDateBar() {
   document.getElementById('nextDay').textContent = `${formatArabicDate(next)} ▶`;
 }
 
-// الانتقال ليوم معين (عدد أيام: +1 أو -1 ...)
 function goToDate(offsetDays) {
   selectedDate = new Date(selectedDate.getTime() + offsetDays * 86400000);
   loadAll();
 }
 
-// اختيار تاريخ من التقويم
 function onDateChange() {
   const val = document.getElementById('datePicker').value;
   if (!val) return;
@@ -112,7 +136,6 @@ function onDateChange() {
   loadAll();
 }
 
-// العودة لليوم الحالي
 function goToday() {
   selectedDate = new Date();
   loadAll();
@@ -147,8 +170,7 @@ function render() {
   const all = window._leagues || [];
   const filtered = currentFilter === 'all' ? all : all.filter(l => l.code === currentFilter);
 
-  // رأس يعرض التاريخ المعروض
-  const dateHeader = `<div class="date-header">🗓️ مباريات ${formatArabicDate(selectedDate)}</div>`;
+  const dateHeader = `<div class="date-header">🗓️ مباريات ${formatArabicDate(selectedDate)} — التوقيت GMT+1</div>`;
 
   if (!filtered.length) {
     container.innerHTML = dateHeader +
@@ -184,7 +206,6 @@ function render() {
 // ===== التشغيل والتحديث التلقائي =====
 loadAll();
 
-// التحديث التلقائي يعمل فقط عندما يكون التاريخ المعروض هو اليوم
 setInterval(() => {
   const isToday = toInputFormat(selectedDate) === toInputFormat(new Date());
   if (isToday) loadAll();
