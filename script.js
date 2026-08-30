@@ -1,4 +1,4 @@
-// ===== المنطق الرئيسي + التقويم (نسخة مصححة) =====
+// ===== المنطق الرئيسي + التقويم =====
 
 let currentFilter = 'all';
 let selectedDate = new Date(); // التاريخ المحدد حاليًا
@@ -7,7 +7,6 @@ const prevScores = {};
 
 // ===== أدوات التاريخ =====
 function toAPIFormat(d) {
-  // يحول التاريخ إلى YYYYMMDD بصيغة ESPN
   const y = d.getFullYear();
   const m = String(d.getMonth() + 1).padStart(2, '0');
   const day = String(d.getDate()).padStart(2, '0');
@@ -15,7 +14,6 @@ function toAPIFormat(d) {
 }
 
 function toInputFormat(d) {
-  // يحول التاريخ إلى YYYY-MM-DD لحقل input[type=date]
   return toAPIFormat(d).replace(/(\d{4})(\d{2})(\d{2})/, '$1-$2-$3');
 }
 
@@ -31,11 +29,11 @@ function formatArabicDate(d) {
 
 // ===== التوقيت: GMT+1 بأرقام لاتينية =====
 const TIME_FMT = new Intl.DateTimeFormat('en-GB', {
-  timeZone: 'Etc/GMT-1',   // Etc/GMT-1 = UTC+1 (غرينيتش +1)
+  timeZone: 'Etc/GMT-1',
   hour: '2-digit',
   minute: '2-digit',
   hour12: false,
-  numberingSystem: 'latn'  // أرقام عادية 0-9 وليست ٠١٢
+  numberingSystem: 'latn'
 });
 
 function formatTime(dateStr) {
@@ -68,7 +66,6 @@ async function fetchLeague(league) {
         home: {
           name: home.team.displayName,
           logo: home.team.logo || home.team.logos?.[0]?.href || '',
-          // ← هنا كان الخطأ: استخراج النتيجة من الـ API
           score: home.score !== undefined && home.score !== null ? Number(home.score) : ''
         },
         away: {
@@ -76,9 +73,8 @@ async function fetchLeague(league) {
           logo: away.team.logo || away.team.logos?.[0]?.href || '',
           score: away.score !== undefined && away.score !== null ? Number(away.score) : ''
         },
-        state: e.status.type.state, // pre | in | post
+        state: e.status.type.state,
         detail: e.status.type.shortDetail || e.status.type.description || '',
-        // الموعد بتوقيت غرينيتش +1
         time: formatTime(e.date)
       };
     })
@@ -93,7 +89,6 @@ async function loadAll() {
   const leagues = results.filter(r => r.status === 'fulfilled' && r.value.events.length)
                          .map(r => r.value);
 
-  // اكتشاف الأهداف الجديدة لتأثير الوميض
   leagues.forEach(l => l.events.forEach(m => {
     const key = l.code + '-' + m.id;
     if (prevScores[key] &&
@@ -210,3 +205,35 @@ setInterval(() => {
   const isToday = toInputFormat(selectedDate) === toInputFormat(new Date());
   if (isToday) loadAll();
 }, REFRESH_INTERVAL);
+
+// ===== 1. تسجيل Service Worker (ضروري لعمل الـ PWA وزر التثبيت) =====
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js')
+      .then(reg => console.log('تم تسجيل Service Worker بنجاح:', reg.scope))
+      .catch(err => console.error('فشل تسجيل Service Worker:', err));
+  });
+}
+
+// ===== 2. منطق زر تثبيت التطبيق =====
+let deferredPrompt;
+const installBtn = document.getElementById('installAppBtn');
+
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  installBtn.style.display = 'inline-block';
+});
+
+installBtn.addEventListener('click', async () => {
+  if (deferredPrompt) {
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    deferredPrompt = null;
+    installBtn.style.display = 'none';
+  }
+});
+
+window.addEventListener('appinstalled', () => {
+  installBtn.style.display = 'none';
+});
